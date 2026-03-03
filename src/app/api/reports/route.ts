@@ -1,34 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { RECOMMENDED_ACTIONS, URGENCY_LEVELS } from "@/types/inspection";
-const CATEGORY_VALUES = [
-  "Roof",
-  "Electrical",
-  "Plumbing",
-  "HVAC",
-  "Foundation",
-  "Structure",
-  "Exterior",
-  "Interior",
-  "Appliances",
-  "Safety",
-  "Other"
-] as const;
-
-const repairItemSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  urgency: z.enum(URGENCY_LEVELS),
-  category: z.enum(CATEGORY_VALUES),
-  estimatedCost: z.object({
-    min: z.number().int().nonnegative(),
-    max: z.number().int().nonnegative(),
-    confidenceNote: z.string().optional()
-  }),
-  recommendedAction: z.enum(RECOMMENDED_ACTIONS)
-});
 
 const inspectionReportSchema = z
   .object({
@@ -102,7 +74,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.log(
       "[reports] validation error:",
-      JSON.stringify(error instanceof z.ZodError ? error.errors : error, null, 2)
+      JSON.stringify((error as { errors?: unknown }).errors ?? error, null, 2)
     );
 
     if (error instanceof z.ZodError) {
